@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Notify.Client
@@ -139,7 +140,7 @@ namespace Notify.Client
 
         public async Task<SmsNotificationResponse> SendSmsAsync(string mobileNumber, string templateId,
             Dictionary<string, dynamic> personalisation = null, string clientReference = null,
-            string smsSenderId = null)
+            string smsSenderId = null, CancellationToken? cancellationToken = null)
         {
             var o = CreateRequestParams(templateId, personalisation, clientReference);
             o.AddFirst(new JProperty("phone_number", mobileNumber));
@@ -149,7 +150,7 @@ namespace Notify.Client
                 o.Add(new JProperty("sms_sender_id", smsSenderId));
             }
 
-            var response = await POST(SEND_SMS_NOTIFICATION_URL, o.ToString(Formatting.None)).ConfigureAwait(false);
+            var response = await POST(SEND_SMS_NOTIFICATION_URL, o.ToString(Formatting.None), cancellationToken ?? CancellationToken.None).ConfigureAwait(false);
 
             return JsonConvert.DeserializeObject<SmsNotificationResponse>(response);
         }
@@ -166,7 +167,7 @@ namespace Notify.Client
                 o.Add(new JProperty("email_reply_to_id", emailReplyToId));
             }
 
-            var response = await POST(SEND_EMAIL_NOTIFICATION_URL, o.ToString(Formatting.None)).ConfigureAwait(false);
+            var response = await POST(SEND_EMAIL_NOTIFICATION_URL, o.ToString(Formatting.None), CancellationToken.None).ConfigureAwait(false);
 
             return JsonConvert.DeserializeObject<EmailNotificationResponse>(response);
         }
@@ -176,7 +177,7 @@ namespace Notify.Client
         {
             var o = CreateRequestParams(templateId, personalisation, clientReference);
 
-            var response = await this.POST(SEND_LETTER_NOTIFICATION_URL, o.ToString(Formatting.None)).ConfigureAwait(false);
+            var response = await this.POST(SEND_LETTER_NOTIFICATION_URL, o.ToString(Formatting.None), CancellationToken.None).ConfigureAwait(false);
 
             return JsonConvert.DeserializeObject<LetterNotificationResponse>(response);
         }
@@ -194,7 +195,7 @@ namespace Notify.Client
                 requestParams.Add(new JProperty("postage", postage));
             }
 
-            var response = await this.POST(SEND_LETTER_NOTIFICATION_URL, requestParams.ToString(Formatting.None)).ConfigureAwait(false);
+            var response = await this.POST(SEND_LETTER_NOTIFICATION_URL, requestParams.ToString(Formatting.None), CancellationToken.None).ConfigureAwait(false);
 
             return JsonConvert.DeserializeObject<LetterNotificationResponse>(response);
         }
@@ -224,7 +225,7 @@ namespace Notify.Client
                 {"personalisation", JObject.FromObject(personalisation)}
             };
 
-            var response = await this.POST(url, o.ToString(Formatting.None)).ConfigureAwait(false);
+            var response = await this.POST(url, o.ToString(Formatting.None), CancellationToken.None).ConfigureAwait(false);
 
             try
             {

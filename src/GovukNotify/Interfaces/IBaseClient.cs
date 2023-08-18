@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Notify.Interfaces
@@ -8,9 +9,9 @@ namespace Notify.Interfaces
     {
         Task<string> GET(string url);
 
-        Task<string> POST(string url, string json);
+        Task<string> POST(string url, string json, CancellationToken cancellationToken);
 
-        Task<string> MakeRequest(string url, HttpMethod method, HttpContent content = null);
+        Task<string> MakeRequest(string url, HttpMethod method, CancellationToken cancellationToken, HttpContent content = null);
 
         Tuple<string, string> ExtractServiceIdAndApiKey(string fromApiKey);
 
