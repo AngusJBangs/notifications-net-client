@@ -182,7 +182,7 @@ namespace Notify.Client
             return JsonConvert.DeserializeObject<LetterNotificationResponse>(response);
         }
 
-        public async Task<LetterNotificationResponse> SendPrecompiledLetterAsync(string clientReference, byte[] pdfContents, string postage = null)
+        public async Task<LetterNotificationResponse> SendPrecompiledLetterAsync(string clientReference, byte[] pdfContents, string postage = null, CancellationToken cancellationToken = default)
         {
             var requestParams = new JObject
             {
@@ -195,7 +195,7 @@ namespace Notify.Client
                 requestParams.Add(new JProperty("postage", postage));
             }
 
-            var response = await this.POST(SEND_LETTER_NOTIFICATION_URL, requestParams.ToString(Formatting.None), CancellationToken.None).ConfigureAwait(false);
+            var response = await this.POST(SEND_LETTER_NOTIFICATION_URL, requestParams.ToString(Formatting.None), cancellationToken).ConfigureAwait(false);
 
             return JsonConvert.DeserializeObject<LetterNotificationResponse>(response);
         }

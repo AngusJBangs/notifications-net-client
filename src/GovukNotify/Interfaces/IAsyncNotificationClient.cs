@@ -28,6 +28,6 @@ namespace Notify.Interfaces
 
         Task<LetterNotificationResponse> SendLetterAsync(string templateId, Dictionary<string, dynamic> personalisation, string clientReference = null, CancellationToken cancellationToken = default);
 
-        Task<LetterNotificationResponse> SendPrecompiledLetterAsync(string clientReference, byte[] pdfContents, string postage);
+        Task<LetterNotificationResponse> SendPrecompiledLetterAsync(string clientReference, byte[] pdfContents, string postage, CancellationToken cancellationToken = default);
     }
 }
