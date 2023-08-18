@@ -140,7 +140,7 @@ namespace Notify.Client
 
         public async Task<SmsNotificationResponse> SendSmsAsync(string mobileNumber, string templateId,
             Dictionary<string, dynamic> personalisation = null, string clientReference = null,
-            string smsSenderId = null, CancellationToken? cancellationToken = null)
+            string smsSenderId = null, CancellationToken cancellationToken = default)
         {
             var o = CreateRequestParams(templateId, personalisation, clientReference);
             o.AddFirst(new JProperty("phone_number", mobileNumber));
@@ -150,7 +150,7 @@ namespace Notify.Client
                 o.Add(new JProperty("sms_sender_id", smsSenderId));
             }
 
-            var response = await POST(SEND_SMS_NOTIFICATION_URL, o.ToString(Formatting.None), cancellationToken ?? CancellationToken.None).ConfigureAwait(false);
+            var response = await POST(SEND_SMS_NOTIFICATION_URL, o.ToString(Formatting.None), cancellationToken).ConfigureAwait(false);
 
             return JsonConvert.DeserializeObject<SmsNotificationResponse>(response);
         }

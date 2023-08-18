@@ -74,7 +74,7 @@ namespace Notify.Client
         {
             var response = SendRequest(url, method, content, cancellationToken).Result;
 
-            var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
