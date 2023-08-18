@@ -43,11 +43,11 @@ namespace Notify.Client
         {
         }
 
-        public async Task<Notification> GetNotificationByIdAsync(string notificationId)
+        public async Task<Notification> GetNotificationByIdAsync(string notificationId, CancellationToken cancellationToken = default)
         {
             var url = GET_NOTIFICATION_URL + notificationId;
 
-            var response = await this.GET(url).ConfigureAwait(false);
+            var response = await this.GET(url, cancellationToken).ConfigureAwait(false);
 
             try
             {
@@ -73,7 +73,7 @@ namespace Notify.Client
         }
 
         public async Task<NotificationList> GetNotificationsAsync(string templateType = "", string status = "", string reference = "",
-            string olderThanId = "", bool includeSpreadsheetUploads = false)
+            string olderThanId = "", bool includeSpreadsheetUploads = false, CancellationToken cancellationToken = default)
         {
             var query = new NameValueCollection();
             if (!string.IsNullOrWhiteSpace(templateType))
@@ -102,13 +102,13 @@ namespace Notify.Client
             }
 
             var finalUrl = GET_ALL_NOTIFICATIONS_URL + ToQueryString(query);
-            var response = await GET(finalUrl).ConfigureAwait(false);
+            var response = await GET(finalUrl, cancellationToken).ConfigureAwait(false);
 
             var notifications = JsonConvert.DeserializeObject<NotificationList>(response);
             return notifications;
         }
 
-        public async Task<TemplateList> GetAllTemplatesAsync(string templateType = "")
+        public async Task<TemplateList> GetAllTemplatesAsync(string templateType = "", CancellationToken cancellationToken = default)
         {
             var finalUrl = string.Format(
                 "{0}{1}",
@@ -116,14 +116,14 @@ namespace Notify.Client
                 templateType == string.Empty ? string.Empty : TYPE_PARAM + templateType
             );
 
-            var response = await GET(finalUrl).ConfigureAwait(false);
+            var response = await GET(finalUrl, cancellationToken).ConfigureAwait(false);
 
             var templateList = JsonConvert.DeserializeObject<TemplateList>(response);
 
             return templateList;
         }
 
-        public async Task<ReceivedTextListResponse> GetReceivedTextsAsync(string olderThanId = "")
+        public async Task<ReceivedTextListResponse> GetReceivedTextsAsync(string olderThanId = "", CancellationToken cancellationToken = default)
         {
             var finalUrl = string.Format(
                 "{0}{1}",
@@ -131,7 +131,7 @@ namespace Notify.Client
                 string.IsNullOrWhiteSpace(olderThanId) ? "" : "?older_than=" + olderThanId
             );
 
-            var response = await this.GET(finalUrl).ConfigureAwait(false);
+            var response = await this.GET(finalUrl, cancellationToken).ConfigureAwait(false);
 
             var receivedTexts = JsonConvert.DeserializeObject<ReceivedTextListResponse>(response);
 
@@ -216,7 +216,7 @@ namespace Notify.Client
         }
 
         public async Task<TemplatePreviewResponse> GenerateTemplatePreviewAsync(string templateId,
-            Dictionary<string, dynamic> personalisation = null)
+            Dictionary<string, dynamic> personalisation = null, CancellationToken cancellationToken = default)
         {
             var url = string.Format("{0}{1}/preview", GET_TEMPLATE_URL, templateId);
 
@@ -225,7 +225,7 @@ namespace Notify.Client
                 {"personalisation", JObject.FromObject(personalisation)}
             };
 
-            var response = await this.POST(url, o.ToString(Formatting.None), CancellationToken.None).ConfigureAwait(false);
+            var response = await this.POST(url, o.ToString(Formatting.None), cancellationToken).ConfigureAwait(false);
 
             try
             {
@@ -274,9 +274,9 @@ namespace Notify.Client
             };
         }
 
-        private async Task<TemplateResponse> GetTemplateFromURLAsync(string url)
+        private async Task<TemplateResponse> GetTemplateFromURLAsync(string url, CancellationToken cancellationToken = default)
         {
-            var response = await this.GET(url).ConfigureAwait(false);
+            var response = await this.GET(url, cancellationToken).ConfigureAwait(false);
 
             try
             {

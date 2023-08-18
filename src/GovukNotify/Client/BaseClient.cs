@@ -39,9 +39,9 @@ namespace Notify.Client
             this.client.AddUserAgent(NOTIFY_CLIENT_NAME + productVersion);
         }
 
-        public async Task<string> GET(string url)
+        public async Task<string> GET(string url, CancellationToken cancellationToken)
         {
-            return await MakeRequest(url, HttpMethod.Get, CancellationToken.None).ConfigureAwait(false);
+            return await MakeRequest(url, HttpMethod.Get, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<string> POST(string url, string json, CancellationToken cancellationToken)

@@ -7,7 +7,7 @@ namespace Notify.Interfaces
 {
     public interface IBaseClient
     {
-        Task<string> GET(string url);
+        Task<string> GET(string url, CancellationToken cancellationToken);
 
         Task<string> POST(string url, string json, CancellationToken cancellationToken);
 

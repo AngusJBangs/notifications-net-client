@@ -8,15 +8,15 @@ namespace Notify.Interfaces
 {
     public interface IAsyncNotificationClient : IBaseClient
     {
-        Task<TemplatePreviewResponse> GenerateTemplatePreviewAsync(string templateId, Dictionary<string, dynamic> personalisation = null);
+        Task<TemplatePreviewResponse> GenerateTemplatePreviewAsync(string templateId, Dictionary<string, dynamic> personalisation = null, CancellationToken cancellationToken = default);
 
-        Task<TemplateList> GetAllTemplatesAsync(string templateType = "");
+        Task<TemplateList> GetAllTemplatesAsync(string templateType = "", CancellationToken cancellationToken = default);
 
-        Task<Notification> GetNotificationByIdAsync(string notificationId);
+        Task<Notification> GetNotificationByIdAsync(string notificationId, CancellationToken cancellationToken = default);
 
-        Task<NotificationList> GetNotificationsAsync(string templateType = "", string status = "", string reference = "", string olderThanId = "", bool includeSpreadsheetUploads = false);
+        Task<NotificationList> GetNotificationsAsync(string templateType = "", string status = "", string reference = "", string olderThanId = "", bool includeSpreadsheetUploads = false, CancellationToken cancellationToken = default);
 
-        Task<ReceivedTextListResponse> GetReceivedTextsAsync(string olderThanId = "");
+        Task<ReceivedTextListResponse> GetReceivedTextsAsync(string olderThanId = "", CancellationToken cancellationToken = default);
 
         Task<TemplateResponse> GetTemplateByIdAsync(string templateId);
 
