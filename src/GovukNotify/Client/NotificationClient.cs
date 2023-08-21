@@ -330,11 +330,11 @@ namespace Notify.Client
             }
         }
 
-        public TemplatePreviewResponse GenerateTemplatePreview(string templateId, Dictionary<string, dynamic> personalisation = null, CancellationToken cancellationToken = default)
+        public TemplatePreviewResponse GenerateTemplatePreview(string templateId, Dictionary<string, dynamic> personalisation = null)
         {
             try
             {
-                return GenerateTemplatePreviewAsync(templateId, personalisation, cancellationToken).Result;
+                return GenerateTemplatePreviewAsync(templateId, personalisation).Result;
             }
             catch (AggregateException ex)
             {
@@ -342,11 +342,11 @@ namespace Notify.Client
             }
         }
 
-        public TemplateList GetAllTemplates(string templateType = "", CancellationToken cancellationToken = default)
+        public TemplateList GetAllTemplates(string templateType = "")
         {
             try
             {
-                return GetAllTemplatesAsync(templateType, cancellationToken).Result;
+                return GetAllTemplatesAsync(templateType).Result;
             }
             catch (AggregateException ex)
             {
@@ -354,11 +354,11 @@ namespace Notify.Client
             }
         }
 
-        public Notification GetNotificationById(string notificationId, CancellationToken cancellationToken = default)
+        public Notification GetNotificationById(string notificationId)
         {
             try
             {
-                return GetNotificationByIdAsync(notificationId, cancellationToken).Result;
+                return GetNotificationByIdAsync(notificationId).Result;
             }
             catch (AggregateException ex)
             {
@@ -366,11 +366,11 @@ namespace Notify.Client
             }
         }
 
-        public NotificationList GetNotifications(string templateType = "", string status = "", string reference = "", string olderThanId = "", bool includeSpreadsheetUploads = false, CancellationToken cancellationToken = default)
+        public NotificationList GetNotifications(string templateType = "", string status = "", string reference = "", string olderThanId = "", bool includeSpreadsheetUploads = false)
         {
             try
             {
-                return GetNotificationsAsync(templateType, status, reference, olderThanId, includeSpreadsheetUploads, cancellationToken).Result;
+                return GetNotificationsAsync(templateType, status, reference, olderThanId, includeSpreadsheetUploads).Result;
             }
             catch (AggregateException ex)
             {
@@ -378,11 +378,11 @@ namespace Notify.Client
             }
         }
 
-        public ReceivedTextListResponse GetReceivedTexts(string olderThanId = "", CancellationToken cancellationToken = default)
+        public ReceivedTextListResponse GetReceivedTexts(string olderThanId = "")
         {
             try
             {
-                return GetReceivedTextsAsync(olderThanId, cancellationToken).Result;
+                return GetReceivedTextsAsync(olderThanId).Result;
             }
             catch (AggregateException ex)
             {
@@ -390,11 +390,11 @@ namespace Notify.Client
             }
         }
 
-        public TemplateResponse GetTemplateById(string templateId, CancellationToken cancellationToken = default)
+        public TemplateResponse GetTemplateById(string templateId)
         {
             try
             {
-                return GetTemplateByIdAsync(templateId, cancellationToken).Result;
+                return GetTemplateByIdAsync(templateId).Result;
             }
             catch (AggregateException ex)
             {
@@ -402,11 +402,11 @@ namespace Notify.Client
             }
         }
 
-        public TemplateResponse GetTemplateByIdAndVersion(string templateId, int version = 0, CancellationToken cancellationToken = default)
+        public TemplateResponse GetTemplateByIdAndVersion(string templateId, int version = 0)
         {
             try
             {
-                return GetTemplateByIdAndVersionAsync(templateId, version, cancellationToken).Result;
+                return GetTemplateByIdAndVersionAsync(templateId, version).Result;
             }
             catch (AggregateException ex)
             {
@@ -414,11 +414,11 @@ namespace Notify.Client
             }
         }
 
-        public SmsNotificationResponse SendSms(string mobileNumber, string templateId, Dictionary<string, dynamic> personalisation = null, string clientReference = null, string smsSenderId = null, CancellationToken cancellationToken = default)
+        public SmsNotificationResponse SendSms(string mobileNumber, string templateId, Dictionary<string, dynamic> personalisation = null, string clientReference = null, string smsSenderId = null)
         {
             try
             {
-                return SendSmsAsync(mobileNumber, templateId, personalisation, clientReference, smsSenderId, cancellationToken).Result;
+                return SendSmsAsync(mobileNumber, templateId, personalisation, clientReference, smsSenderId).Result;
             }
             catch (AggregateException ex)
             {
@@ -426,11 +426,11 @@ namespace Notify.Client
             }
         }
 
-        public EmailNotificationResponse SendEmail(string emailAddress, string templateId, Dictionary<string, dynamic> personalisation = null, string clientReference = null, string emailReplyToId = null, CancellationToken cancellationToken = default)
+        public EmailNotificationResponse SendEmail(string emailAddress, string templateId, Dictionary<string, dynamic> personalisation = null, string clientReference = null, string emailReplyToId = null)
         {
             try
             {
-                return SendEmailAsync(emailAddress, templateId, personalisation, clientReference, emailReplyToId, cancellationToken).Result;
+                return SendEmailAsync(emailAddress, templateId, personalisation, clientReference, emailReplyToId).Result;
             }
             catch (AggregateException ex)
             {
@@ -438,11 +438,11 @@ namespace Notify.Client
             }
         }
 
-        public LetterNotificationResponse SendLetter(string templateId, Dictionary<string, dynamic> personalisation, string clientReference = null, CancellationToken cancellationToken = default)
+        public LetterNotificationResponse SendLetter(string templateId, Dictionary<string, dynamic> personalisation, string clientReference = null)
         {
             try
             {
-                return SendLetterAsync(templateId, personalisation, clientReference, cancellationToken).Result;
+                return SendLetterAsync(templateId, personalisation, clientReference).Result;
             }
             catch (AggregateException ex)
             {
@@ -450,11 +450,11 @@ namespace Notify.Client
             }
         }
 
-        public LetterNotificationResponse SendPrecompiledLetter(string clientReference, byte[] pdfContents, string postage = null, CancellationToken cancellationToken = default)
+        public LetterNotificationResponse SendPrecompiledLetter(string clientReference, byte[] pdfContents, string postage = null)
         {
             try
             {
-                return SendPrecompiledLetterAsync(clientReference, pdfContents, postage, cancellationToken).Result;
+                return SendPrecompiledLetterAsync(clientReference, pdfContents, postage).Result;
             }
             catch (AggregateException ex)
             {
