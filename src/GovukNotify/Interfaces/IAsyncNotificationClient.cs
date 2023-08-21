@@ -18,9 +18,9 @@ namespace Notify.Interfaces
 
         Task<ReceivedTextListResponse> GetReceivedTextsAsync(string olderThanId = "", CancellationToken cancellationToken = default);
 
-        Task<TemplateResponse> GetTemplateByIdAsync(string templateId);
+        Task<TemplateResponse> GetTemplateByIdAsync(string templateId, CancellationToken cancellationToken = default);
 
-        Task<TemplateResponse> GetTemplateByIdAndVersionAsync(string templateId, int version = 0);
+        Task<TemplateResponse> GetTemplateByIdAndVersionAsync(string templateId, int version = 0, CancellationToken cancellationToken = default);
 
         Task<SmsNotificationResponse> SendSmsAsync(string mobileNumber, string templateId, Dictionary<string, dynamic> personalisation = null, string clientReference = null, string smsSenderId = null, CancellationToken cancellationToken = default);
 

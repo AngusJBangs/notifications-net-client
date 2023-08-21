@@ -50,12 +50,12 @@ namespace Notify.Client
             return await MakeRequest(url, HttpMethod.Post, cancellationToken, content).ConfigureAwait(false);
         }
 
-        public async Task<byte[]> GETBytes(string url)
+        public async Task<byte[]> GETBytes(string url, CancellationToken cancellationToken)
         {
-            return await MakeRequestBytes(url, HttpMethod.Get).ConfigureAwait(false);
+            return await MakeRequestBytes(url, HttpMethod.Get, cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<byte[]> MakeRequestBytes(string url, HttpMethod method, HttpContent content = null) {
+        public async Task<byte[]> MakeRequestBytes(string url, HttpMethod method, CancellationToken cancellationToken, HttpContent content = null) {
             var response = SendRequest(url, method, content, CancellationToken.None).Result;
 
             var responseContent = await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
@@ -74,7 +74,7 @@ namespace Notify.Client
         {
             var response = SendRequest(url, method, content, cancellationToken).Result;
 
-            var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false); // NEED TO PASS CANCELLATION TOKEN HERE?
+            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false); // NEED TO PASS CANCELLATION TOKEN HERE?
 
             if (!response.IsSuccessStatusCode)
             {

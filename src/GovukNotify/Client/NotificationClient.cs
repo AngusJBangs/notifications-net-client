@@ -200,19 +200,19 @@ namespace Notify.Client
             return JsonConvert.DeserializeObject<LetterNotificationResponse>(response);
         }
 
-        public async Task<TemplateResponse> GetTemplateByIdAsync(string templateId)
+        public async Task<TemplateResponse> GetTemplateByIdAsync(string templateId, CancellationToken cancellationToken = default)
         {
             var url = GET_TEMPLATE_URL + templateId;
 
-            return await GetTemplateFromURLAsync(url).ConfigureAwait(false);
+            return await GetTemplateFromURLAsync(url, cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<TemplateResponse> GetTemplateByIdAndVersionAsync(string templateId, int version = 0)
+        public async Task<TemplateResponse> GetTemplateByIdAndVersionAsync(string templateId, int version = 0, CancellationToken cancellationToken = default)
         {
             var pattern = "{0}{1}" + (version > 0 ? VERSION_PARAM + "{2}" : "");
             var url = string.Format(pattern, GET_TEMPLATE_URL, templateId, version);
 
-            return await GetTemplateFromURLAsync(url).ConfigureAwait(false);
+            return await GetTemplateFromURLAsync(url, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<TemplatePreviewResponse> GenerateTemplatePreviewAsync(string templateId,
@@ -239,10 +239,10 @@ namespace Notify.Client
         }
 
 
-        public async Task<byte[]> GetPdfForLetterAsync(string notificationId)
+        public async Task<byte[]> GetPdfForLetterAsync(string notificationId, CancellationToken cancellationToken = default)
         {
             var finalUrl = string.Format(GET_PDF_FOR_LETTER_URL, notificationId);
-            var response = await GETBytes(finalUrl).ConfigureAwait(false);
+            var response = await GETBytes(finalUrl, cancellationToken).ConfigureAwait(false);
             return response;
         }
 

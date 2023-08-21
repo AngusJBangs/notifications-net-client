@@ -1,6 +1,7 @@
 ﻿using Notify.Models;
 using Notify.Models.Responses;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Notify.Interfaces
 {
@@ -18,7 +19,7 @@ namespace Notify.Interfaces
 
         TemplateResponse GetTemplateById(string templateId);
 
-        TemplateResponse GetTemplateByIdAndVersion(string templateId, int version = 0);
+        TemplateResponse GetTemplateByIdAndVersion(string templateId, int version = 0, CancellationToken cancellationToken = default);
 
         SmsNotificationResponse SendSms(string mobileNumber, string templateId, Dictionary<string, dynamic> personalisation = null, string clientReference = null, string smsSenderId = null);
 
