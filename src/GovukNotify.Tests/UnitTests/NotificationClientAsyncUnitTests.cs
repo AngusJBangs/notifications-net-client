@@ -274,7 +274,7 @@ namespace Notify.Tests.UnitTests
         {
             const string type = "sms";
             MockRequest(Constants.fakeTemplateSmsListResponseJson,
-                         client.GET_ALL_TEMPLATES_URL+ client.TYPE_PARAM + type, AssertValidRequest);
+                         client.GET_ALL_TEMPLATES_URL + client.TYPE_PARAM + type, AssertValidRequest);
 
             await client.GetAllTemplatesAsync(type);
         }
@@ -285,7 +285,7 @@ namespace Notify.Tests.UnitTests
             const string type = "email";
 
             MockRequest(Constants.fakeTemplateEmailListResponseJson,
-                         client.GET_ALL_TEMPLATES_URL+ client.TYPE_PARAM + type, AssertValidRequest);
+                         client.GET_ALL_TEMPLATES_URL + client.TYPE_PARAM + type, AssertValidRequest);
 
             await client.GetAllTemplatesAsync(type);
         }
@@ -295,7 +295,7 @@ namespace Notify.Tests.UnitTests
         {
             var expectedResponse = JsonConvert.DeserializeObject<TemplateList>(Constants.fakeTemplateEmptyListResponseJson);
 
-               MockRequest(Constants.fakeTemplateEmptyListResponseJson);
+            MockRequest(Constants.fakeTemplateEmptyListResponseJson);
 
             TemplateList templateList = await client.GetAllTemplatesAsync();
 
@@ -535,7 +535,7 @@ namespace Notify.Tests.UnitTests
         public void PrepareUploadWithLargeDocumentGeneratesAnError()
         {
             Assert.That(
-                    () => { NotificationClient.PrepareUpload(new byte[3*1024*1024]); },
+                    () => { NotificationClient.PrepareUpload(new byte[3 * 1024 * 1024]); },
                     Throws.ArgumentException
                     );
         }
@@ -768,13 +768,42 @@ namespace Notify.Tests.UnitTests
         public async Task CancelSmsCorrectErrorResponse()
         {
             var cancellationTokenSource = new CancellationTokenSource();
-           
-            Assert.ThrowsAsync<TaskCanceledException>( async () => {
-                var task = client.SendSmsAsync(Constants.fakePhoneNumber, Constants.fakeTemplateId, null, null, null, cancellationTokenSource.Token);
-                cancellationTokenSource.Cancel();
-                await task;
+            var cancellationToken = new CancellationToken();
+            var taskCompletionSource = new TaskCompletionSource<HttpResponseMessage>();
+            handler.Protected()
+                           .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>())
+                           .Returns(taskCompletionSource.Task).Callback(() => cancellationTokenSource.Cancel());
 
+
+            Assert.ThrowsAsync<TaskCanceledException>(async () =>
+            {
+                await client.SendSmsAsync(Constants.fakePhoneNumber, Constants.fakeTemplateId, null, null, null, cancellationTokenSource.Token);
             });
+        }
+
+        [Test, Category("Unit"), Category("Unit/NotificationClientAsync")]
+        public async Task SmsPassesToken()
+        {
+            var cancellationToken = new CancellationTokenSource().Token;
+            var tokens = new List<CancellationToken>();
+            handler.Protected()
+                           .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>()).Returns(Task<HttpResponseMessage>.Factory.StartNew(() => new HttpResponseMessage
+                           {
+                               StatusCode = HttpStatusCode.OK,
+                               Content = new StringContent(Constants.fakeEmailNotificationResponseJson)
+                           })); ;
+
+                await client.SendSmsAsync(Constants.fakePhoneNumber, Constants.fakeTemplateId, null, null, null, cancellationToken);
+
+            //handler.Protected()
+            //  .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            //  .Returns(Task<HttpResponseMessage>.Factory.StartNew(() => new HttpResponseMessage
+            //  {
+            //      StatusCode = HttpStatusCode.OK,
+            //      Content = new StringContent(content)
+            //  }));
+
+            handler.Verify();
         }
 
     }

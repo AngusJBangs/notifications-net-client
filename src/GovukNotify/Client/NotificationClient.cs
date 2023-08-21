@@ -248,7 +248,8 @@ namespace Notify.Client
 
         public static JObject PrepareUpload(byte[] documentContents, bool isCsv, bool confirmEmailBeforeDownload, string retentionPeriod)
         {
-            if (documentContents.Length > 2 * 1024 * 1024) {
+            if (documentContents.Length > 2 * 1024 * 1024)
+            {
                 throw new System.ArgumentException("File is larger than 2MB");
             }
             return new JObject
@@ -262,7 +263,8 @@ namespace Notify.Client
 
         public static JObject PrepareUpload(byte[] documentContents, bool isCsv = false)
         {
-            if (documentContents.Length > 2 * 1024 * 1024) {
+            if (documentContents.Length > 2 * 1024 * 1024)
+            {
                 throw new System.ArgumentException("File is larger than 2MB");
             }
             return new JObject

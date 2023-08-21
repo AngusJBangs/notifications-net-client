@@ -41,13 +41,13 @@ namespace Notify.Client
 
         public async Task<string> GET(string url, CancellationToken cancellationToken)
         {
-            return await MakeRequest(url, HttpMethod.Get, cancellationToken).ConfigureAwait(false);
+            return await MakeRequest(url, HttpMethod.Get, null, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<string> POST(string url, string json, CancellationToken cancellationToken)
         {
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            return await MakeRequest(url, HttpMethod.Post, cancellationToken, content).ConfigureAwait(false);
+            return await MakeRequest(url, HttpMethod.Post, content, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<byte[]> GETBytes(string url, CancellationToken cancellationToken)
@@ -55,7 +55,8 @@ namespace Notify.Client
             return await MakeRequestBytes(url, HttpMethod.Get, cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<byte[]> MakeRequestBytes(string url, HttpMethod method, CancellationToken cancellationToken, HttpContent content = null) {
+        public async Task<byte[]> MakeRequestBytes(string url, HttpMethod method, CancellationToken cancellationToken, HttpContent content = null)
+        {
             var response = SendRequest(url, method, content, CancellationToken.None).Result;
 
             var responseContent = await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
@@ -70,11 +71,11 @@ namespace Notify.Client
 
         }
 
-        public async Task<string> MakeRequest(string url, HttpMethod method, CancellationToken cancellationToken, HttpContent content = null)
+        public async Task<string> MakeRequest(string url, HttpMethod method, HttpContent content = null, CancellationToken cancellationToken = default)
         {
             var response = SendRequest(url, method, content, cancellationToken).Result;
 
-            var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false); // NEED TO PASS CANCELLATION TOKEN HERE?
+            var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {

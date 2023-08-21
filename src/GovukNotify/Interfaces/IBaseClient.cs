@@ -7,11 +7,11 @@ namespace Notify.Interfaces
 {
     public interface IBaseClient
     {
-        Task<string> GET(string url, CancellationToken cancellationToken);
+        Task<string> GET(string url, CancellationToken cancellationToken = default);
 
-        Task<string> POST(string url, string json, CancellationToken cancellationToken);
+        Task<string> POST(string url, string json, CancellationToken cancellationToken = default);
 
-        Task<string> MakeRequest(string url, HttpMethod method, CancellationToken cancellationToken, HttpContent content = null);
+        Task<string> MakeRequest(string url, HttpMethod method, HttpContent content = null, CancellationToken cancellationToken = default);
 
         Tuple<string, string> ExtractServiceIdAndApiKey(string fromApiKey);
 
