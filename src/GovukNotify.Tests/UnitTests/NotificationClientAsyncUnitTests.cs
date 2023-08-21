@@ -764,5 +764,18 @@ namespace Notify.Tests.UnitTests
             var response = await client.SendSmsAsync(
                 Constants.fakePhoneNumber, Constants.fakeTemplateId, personalisation: personalisation, smsSenderId: Constants.fakeSMSSenderId);
         }
+        [Test, Category("Unit"), Category("Unit/NotificationClientAsync")]
+        public async Task CancelSmsCorrectErrorResponse()
+        {
+            var cancellationTokenSource = new CancellationTokenSource();
+           
+            Assert.ThrowsAsync<TaskCanceledException>( async () => {
+                var task = client.SendSmsAsync(Constants.fakePhoneNumber, Constants.fakeTemplateId, null, null, null, cancellationTokenSource.Token);
+                cancellationTokenSource.Cancel();
+                await task;
+
+            });
+        }
+
     }
 }
