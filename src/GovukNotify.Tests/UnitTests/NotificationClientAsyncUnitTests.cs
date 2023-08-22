@@ -765,7 +765,7 @@ namespace Notify.Tests.UnitTests
                 Constants.fakePhoneNumber, Constants.fakeTemplateId, personalisation: personalisation, smsSenderId: Constants.fakeSMSSenderId);
         }
         [Test, Category("Unit"), Category("Unit / NotificationClientAsync")]
-        public void CancelSmsCorrectErrorResponse()
+        public void SendSmsAsyncPassesCancellationToken()
         {
             using (var cancellationTokenSource = new CancellationTokenSource())
             {
@@ -779,6 +779,49 @@ namespace Notify.Tests.UnitTests
                 Assert.ThrowsAsync<TaskCanceledException>(async () =>
                 {
                     await client.SendSmsAsync(Constants.fakePhoneNumber, Constants.fakeTemplateId, null, null, null, cancellationTokenSource.Token);
+                });
+            }
+        }
+
+        [Test, Category("Unit"), Category("Unit / NotificationClientAsync")]
+        public void SendEmailAsyncPassesCancellationToken()
+        {
+            using (var cancellationTokenSource = new CancellationTokenSource())
+            {
+                handler.Protected().As<HttpMessageHandlerProtectedMembers>()
+                  .Setup(x => x.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>())).ReturnsAsync((HttpRequestMessage _, CancellationToken ct) =>
+                  {
+                      Assert.False(ct.IsCancellationRequested);
+                      cancellationTokenSource.Cancel();
+                      throw Assert.Throws<OperationCanceledException>(ct.ThrowIfCancellationRequested);
+                  });
+                Assert.ThrowsAsync<TaskCanceledException>(async () =>
+                {
+                    await client.SendEmailAsync(Constants.fakeEmail, Constants.fakeTemplateId, null, null, null, cancellationTokenSource.Token);
+                });
+            }
+        }
+        [Test, Category("Unit"), Category("Unit / NotificationClientAsync")]
+        public void SendLetterAsyncPassesCancellationToken()
+        {
+            Dictionary<string, dynamic> personalisation = new Dictionary<string, dynamic>
+                {
+                    { "address_line_1", "Foo" },
+                    { "address_line_2", "Bar" },
+                    { "postcode", "SW1 1AA" }
+                };
+            using (var cancellationTokenSource = new CancellationTokenSource())
+            {
+                handler.Protected().As<HttpMessageHandlerProtectedMembers>()
+                  .Setup(x => x.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>())).ReturnsAsync((HttpRequestMessage _, CancellationToken ct) =>
+                  {
+                      Assert.False(ct.IsCancellationRequested);
+                      cancellationTokenSource.Cancel();
+                      throw Assert.Throws<OperationCanceledException>(ct.ThrowIfCancellationRequested);
+                  });
+                Assert.ThrowsAsync<TaskCanceledException>(async () =>
+                {
+                    await client.SendLetterAsync(Constants.fakeTemplateId, personalisation, null, cancellationTokenSource.Token);
                 });
             }
         }
