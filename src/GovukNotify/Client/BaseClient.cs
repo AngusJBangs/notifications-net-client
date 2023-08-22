@@ -73,7 +73,7 @@ namespace Notify.Client
 
         public async Task<string> MakeRequest(string url, HttpMethod method, HttpContent content = null, CancellationToken cancellationToken = default)
         {
-            var response = SendRequest(url, method, content, cancellationToken).Result;
+            var response = await SendRequest(url, method, content, cancellationToken);
 
             var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 

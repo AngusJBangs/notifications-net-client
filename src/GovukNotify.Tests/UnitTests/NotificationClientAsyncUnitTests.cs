@@ -673,13 +673,13 @@ namespace Notify.Tests.UnitTests
                     StatusCode = status,
                     Content = new StringContent(content)
                 }))
-                .Callback<HttpRequestMessage, CancellationToken>((r, c) =>
+                .Callback<HttpRequestMessage, CancellationToken>(async(r, c) =>
                 {
                     _assertValidRequest(uri, r, method);
 
                     if (r.Content == null || _assertGetExpectedContent == null) return;
 
-                    var response = r.Content.ReadAsStringAsync().Result;
+                    var response = await r.Content.ReadAsStringAsync();
                     _assertGetExpectedContent(expected, response);
                 });
         }
@@ -764,46 +764,27 @@ namespace Notify.Tests.UnitTests
             var response = await client.SendSmsAsync(
                 Constants.fakePhoneNumber, Constants.fakeTemplateId, personalisation: personalisation, smsSenderId: Constants.fakeSMSSenderId);
         }
-        [Test, Category("Unit"), Category("Unit/NotificationClientAsync")]
-        public async Task CancelSmsCorrectErrorResponse()
+        [Test, Category("Unit"), Category("Unit / NotificationClientAsync")]
+        public void CancelSmsCorrectErrorResponse()
         {
-            var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = new CancellationToken();
-            var taskCompletionSource = new TaskCompletionSource<HttpResponseMessage>();
-            handler.Protected()
-                           .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>())
-                           .Returns(taskCompletionSource.Task).Callback(() => cancellationTokenSource.Cancel());
-
-
-            Assert.ThrowsAsync<TaskCanceledException>(async () =>
+            using (var cancellationTokenSource = new CancellationTokenSource())
             {
-                await client.SendSmsAsync(Constants.fakePhoneNumber, Constants.fakeTemplateId, null, null, null, cancellationTokenSource.Token);
-            });
+                handler.Protected().As<HttpMessageHandlerProtectedMembers>()
+                  .Setup(x => x.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>())).ReturnsAsync((HttpRequestMessage _, CancellationToken ct) =>
+                  {
+                      Assert.False(ct.IsCancellationRequested);
+                      cancellationTokenSource.Cancel();
+                      throw Assert.Throws<OperationCanceledException>(ct.ThrowIfCancellationRequested);
+                  });
+                Assert.ThrowsAsync<TaskCanceledException>(async () =>
+                {
+                    await client.SendSmsAsync(Constants.fakePhoneNumber, Constants.fakeTemplateId, null, null, null, cancellationTokenSource.Token);
+                });
+            }
         }
-
-        [Test, Category("Unit"), Category("Unit/NotificationClientAsync")]
-        public async Task SmsPassesToken()
+        interface HttpMessageHandlerProtectedMembers
         {
-            var cancellationToken = new CancellationTokenSource().Token;
-            var tokens = new List<CancellationToken>();
-            handler.Protected()
-                           .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>()).Returns(Task<HttpResponseMessage>.Factory.StartNew(() => new HttpResponseMessage
-                           {
-                               StatusCode = HttpStatusCode.OK,
-                               Content = new StringContent(Constants.fakeEmailNotificationResponseJson)
-                           })); ;
-
-                await client.SendSmsAsync(Constants.fakePhoneNumber, Constants.fakeTemplateId, null, null, null, cancellationToken);
-
-            //handler.Protected()
-            //  .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-            //  .Returns(Task<HttpResponseMessage>.Factory.StartNew(() => new HttpResponseMessage
-            //  {
-            //      StatusCode = HttpStatusCode.OK,
-            //      Content = new StringContent(content)
-            //  }));
-
-            handler.Verify();
+            Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken);
         }
 
     }
