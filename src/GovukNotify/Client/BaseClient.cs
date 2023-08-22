@@ -57,7 +57,7 @@ namespace Notify.Client
 
         public async Task<byte[]> MakeRequestBytes(string url, HttpMethod method, CancellationToken cancellationToken, HttpContent content = null)
         {
-            var response = SendRequest(url, method, content, CancellationToken.None).Result;
+            var response = await SendRequest(url, method, content, CancellationToken.None);
 
             var responseContent = await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
 
