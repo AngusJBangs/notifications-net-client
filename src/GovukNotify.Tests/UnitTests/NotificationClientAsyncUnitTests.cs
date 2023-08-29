@@ -274,7 +274,7 @@ namespace Notify.Tests.UnitTests
         {
             const string type = "sms";
             MockRequest(Constants.fakeTemplateSmsListResponseJson,
-                         client.GET_ALL_TEMPLATES_URL+ client.TYPE_PARAM + type, AssertValidRequest);
+                         client.GET_ALL_TEMPLATES_URL + client.TYPE_PARAM + type, AssertValidRequest);
 
             await client.GetAllTemplatesAsync(type);
         }
@@ -285,7 +285,7 @@ namespace Notify.Tests.UnitTests
             const string type = "email";
 
             MockRequest(Constants.fakeTemplateEmailListResponseJson,
-                         client.GET_ALL_TEMPLATES_URL+ client.TYPE_PARAM + type, AssertValidRequest);
+                         client.GET_ALL_TEMPLATES_URL + client.TYPE_PARAM + type, AssertValidRequest);
 
             await client.GetAllTemplatesAsync(type);
         }
@@ -295,7 +295,7 @@ namespace Notify.Tests.UnitTests
         {
             var expectedResponse = JsonConvert.DeserializeObject<TemplateList>(Constants.fakeTemplateEmptyListResponseJson);
 
-               MockRequest(Constants.fakeTemplateEmptyListResponseJson);
+            MockRequest(Constants.fakeTemplateEmptyListResponseJson);
 
             TemplateList templateList = await client.GetAllTemplatesAsync();
 
@@ -535,7 +535,7 @@ namespace Notify.Tests.UnitTests
         public void PrepareUploadWithLargeDocumentGeneratesAnError()
         {
             Assert.That(
-                    () => { NotificationClient.PrepareUpload(new byte[3*1024*1024]); },
+                    () => { NotificationClient.PrepareUpload(new byte[3 * 1024 * 1024]); },
                     Throws.ArgumentException
                     );
         }
@@ -673,13 +673,13 @@ namespace Notify.Tests.UnitTests
                     StatusCode = status,
                     Content = new StringContent(content)
                 }))
-                .Callback<HttpRequestMessage, CancellationToken>((r, c) =>
+                .Callback<HttpRequestMessage, CancellationToken>(async(r, c) =>
                 {
                     _assertValidRequest(uri, r, method);
 
                     if (r.Content == null || _assertGetExpectedContent == null) return;
 
-                    var response = r.Content.ReadAsStringAsync().Result;
+                    var response = await r.Content.ReadAsStringAsync();
                     _assertGetExpectedContent(expected, response);
                 });
         }
@@ -764,5 +764,146 @@ namespace Notify.Tests.UnitTests
             var response = await client.SendSmsAsync(
                 Constants.fakePhoneNumber, Constants.fakeTemplateId, personalisation: personalisation, smsSenderId: Constants.fakeSMSSenderId);
         }
+
+        [Test, Category("Unit"), Category("Unit / NotificationClientAsync")]
+        public async Task SendSmsAsyncPassesCancellationToken()
+        {
+            await AssertCancellationThrowsAsync(async cancellationToken =>
+            {
+                await client.SendSmsAsync(Constants.fakePhoneNumber, Constants.fakeTemplateId, null, null, null, cancellationToken);
+            });
+        }
+
+        [Test, Category("Unit"), Category("Unit / NotificationClientAsync")]
+        public async Task SendEmailAsyncPassesCancellationToken()
+        {
+            await AssertCancellationThrowsAsync(async cancellationToken =>
+            {
+                await client.SendEmailAsync(Constants.fakeEmail, Constants.fakeTemplateId, null, null, null, cancellationToken);
+            });
+        }
+        
+        [Test, Category("Unit"), Category("Unit / NotificationClientAsync")]
+        public void SendLetterAsyncPassesCancellationToken()
+        {
+            Dictionary<string, dynamic> personalisation = new Dictionary<string, dynamic>
+                {
+                    { "address_line_1", "Foo" },
+                    { "address_line_2", "Bar" },
+                    { "postcode", "SW1 1AA" }
+                };
+
+            await AssertCancellationThrowsAsync(async cancellationToken =>
+            {
+                await client.SendLetterAsync(Constants.fakeTemplateId, personalisation, null, cancellationToken);
+            });
+        }
+
+        [Test, Category("Unit"), Category("Unit / NotificationClientAsync")]
+        public void SendPrecompiledLetterAsyncPassesCancellationToken()
+        {
+            await AssertCancellationThrowsAsync(async cancellationToken =>
+            {
+                await client.SendPrecompiledLetterAsync(Constants.fakeNotificationReference, Encoding.UTF8.GetBytes("%PDF-1.5 testpdf"), null, cancellationToken);
+            });
+        }
+
+        [Test, Category("Unit"), Category("Unit / NotificationClientAsync")]
+        public void GetTemplateByIdAndVersionAsyncPassesCancellationToken()
+        {
+            await AssertCancellationThrowsAsync(async cancellationToken =>
+                {
+                    await client.GetTemplateByIdAndVersionAsync(Constants.fakeTemplateId, 0, cancellationToken);
+                });
+        }
+
+        [Test, Category("Unit"), Category("Unit / NotificationClientAsync")]
+        public void GetTemplateByIdAsyncPassesCancellationToken()
+        {
+            await AssertCancellationThrowsAsync(async cancellationToken =>
+            {
+                await client.GetTemplateByIdAsync(Constants.fakeTemplateId, cancellationToken);
+            });
+        }
+
+        [Test, Category("Unit"), Category("Unit / NotificationClientAsync")]
+        public void GetReceivedTextsAsyncPassesCancellationToken()
+        {
+            await AssertCancellationThrowsAsync(async cancellationToken =>
+            {
+                await client.GetTemplateByIdAsync(Constants.fakeTemplateId, cancellationTokenSource.Token);
+            });
+            
+        }
+
+        [Test, Category("Unit"), Category("Unit / NotificationClientAsync")]
+        public void GetNotificationsAsyncPassesCancellationToken()
+        {
+            await AssertCancellationThrowsAsync(async cancellationToken =>
+            {
+                await client.GetNotificationsAsync("", "", "", "", false, cancellationToken);
+            });
+        }
+
+        [Test, Category("Unit"), Category("Unit / NotificationClientAsync")]
+        public void GetNotificationByIdAsyncPassesCancellationToken()
+        {
+            await AssertCancellationThrowsAsync(async cancellationToken =>
+            {
+                await client.GetNotificationByIdAsync(Constants.fakeNotificationId, cancellationToken);
+            });
+        }
+
+        [Test, Category("Unit"), Category("Unit / NotificationClientAsync")]
+        public void GetAllTemplatesAsyncPassesCancellationToken()
+        {
+            await AssertCancellationThrowsAsync(async cancellationToken =>
+            {
+                await client.GetAllTemplatesAsync("", cancellationToken);
+            });
+        }
+
+        [Test, Category("Unit"), Category("Unit / NotificationClientAsync")]
+        public void GenerateTemplatePreviewAsyncPassesCancellationToken()
+        {
+            Dictionary<string, dynamic> personalisation = new Dictionary<string, dynamic> {
+                    { "name", "someone" }
+            };
+            await AssertCancellationThrowsAsync(async cancellationToken =>
+            {
+                await client.GenerateTemplatePreviewAsync(Constants.fakeTemplateId, personalisation, cancellationToken);
+            });
+            
+        }
+
+        private async Task AssertCancellationThrowsAsync(Func<CancellationToken, Task> action)
+        {
+            using (var cancellationTokenSource = new CancellationTokenSource())
+            {
+                handler.Protected()
+                       .As<HttpMessageHandlerProtectedMembers>()
+                       .Setup(x => x.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
+                       .ReturnsAsync((HttpRequestMessage _, CancellationToken ct) =>
+                       {
+                           Assert.False(ct.IsCancellationRequested);
+                           cancellationTokenSource.Cancel();
+                           throw Assert.Throws<OperationCanceledException>(ct.ThrowIfCancellationRequested);
+                       });
+
+                await Task.Run(() =>
+                {
+                    Assert.ThrowsAsync<TaskCanceledException>(async () =>
+                    {
+                        await action(cancellationTokenSource.Token);
+                    });
+                });
+            }
+        }
+
+        interface HttpMessageHandlerProtectedMembers
+        {
+            Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken);
+        }
+
     }
 }

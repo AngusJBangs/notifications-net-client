@@ -7,6 +7,7 @@ using System;
 using System.Net.Http;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Notify.Client
@@ -38,24 +39,25 @@ namespace Notify.Client
             this.client.AddUserAgent(NOTIFY_CLIENT_NAME + productVersion);
         }
 
-        public async Task<string> GET(string url)
+        public async Task<string> GET(string url, CancellationToken cancellationToken)
         {
-            return await MakeRequest(url, HttpMethod.Get).ConfigureAwait(false);
+            return await MakeRequest(url, HttpMethod.Get, null, cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<string> POST(string url, string json)
+        public async Task<string> POST(string url, string json, CancellationToken cancellationToken)
         {
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            return await MakeRequest(url, HttpMethod.Post, content).ConfigureAwait(false);
+            return await MakeRequest(url, HttpMethod.Post, content, cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<byte[]> GETBytes(string url)
+        public async Task<byte[]> GETBytes(string url, CancellationToken cancellationToken)
         {
-            return await MakeRequestBytes(url, HttpMethod.Get).ConfigureAwait(false);
+            return await MakeRequestBytes(url, HttpMethod.Get, cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<byte[]> MakeRequestBytes(string url, HttpMethod method, HttpContent content = null) {
-            var response = SendRequest(url, method, content).Result;
+        public async Task<byte[]> MakeRequestBytes(string url, HttpMethod method, CancellationToken cancellationToken, HttpContent content = null)
+        {
+            var response = await SendRequest(url, method, content, CancellationToken.None);
 
             var responseContent = await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
 
@@ -69,9 +71,9 @@ namespace Notify.Client
 
         }
 
-        public async Task<string> MakeRequest(string url, HttpMethod method, HttpContent content = null)
+        public async Task<string> MakeRequest(string url, HttpMethod method, HttpContent content = null, CancellationToken cancellationToken = default)
         {
-            var response = SendRequest(url, method, content).Result;
+            var response = await SendRequest(url, method, content, cancellationToken);
 
             var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
@@ -82,7 +84,7 @@ namespace Notify.Client
             return responseContent;
         }
 
-        private async Task<HttpResponseMessage> SendRequest(string url, HttpMethod method, HttpContent content)
+        private async Task<HttpResponseMessage> SendRequest(string url, HttpMethod method, HttpContent content, CancellationToken cancellationToken)
         {
             var request = new HttpRequestMessage(method, url);
 
@@ -98,7 +100,7 @@ namespace Notify.Client
 
             try
             {
-                response = await this.client.SendAsync(request).ConfigureAwait(false);
+                response = await this.client.SendAsync(request, cancellationToken).ConfigureAwait(false);
             }
             catch (AggregateException ae)
             {

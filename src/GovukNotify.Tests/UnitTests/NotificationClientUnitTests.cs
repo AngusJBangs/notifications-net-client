@@ -723,13 +723,13 @@ namespace Notify.Tests.UnitTests
                     StatusCode = status,
                     Content = new StringContent(content)
                 }))
-                .Callback<HttpRequestMessage, CancellationToken>((r, c) =>
+                .Callback<HttpRequestMessage, CancellationToken>(async(r, c) =>
                 {
                     _assertValidRequest(uri, r, method);
 
                     if (r.Content == null || _assertGetExpectedContent == null) return;
 
-                    var response = r.Content.ReadAsStringAsync().Result;
+                    var response = await r.Content.ReadAsStringAsync();
                     _assertGetExpectedContent(expected, response);
                 });
         }
